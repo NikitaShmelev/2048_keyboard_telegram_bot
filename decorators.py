@@ -4,6 +4,7 @@ import sys
 
 logger = getLogger(__name__)
 
+
 def debug_requests(f):
 
     def inner(*args, **kwargs):

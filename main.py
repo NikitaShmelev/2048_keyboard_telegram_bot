@@ -11,12 +11,19 @@ from tokens import BOT_API_TOKEN
 
 
 @debug_requests
-def do_start(update: Update, context=CallbackContext):
+def do_start(update: Update, context: CallbackContext):
     user_id = update.message.chat_id
-    if user_id in users.keys():
-        print('good')
-    else:
-        print('shit')
+    users[user_id] = User('Best_name', user_id)
+    # if user_id in users.keys():
+    #     print('good')
+    # else:
+    #     print('shit')
+
+
+@debug_requests
+def get_text(update: Update, context: CallbackContext):
+    user_id = update.message.chat_id
+
 
 def main():
     
