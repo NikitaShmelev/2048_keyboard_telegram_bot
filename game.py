@@ -3,10 +3,10 @@ import random
 
 # game_field = np.zeros((4, 4))
 game_field = [
-                [2, 0, 0, 0],
-                [2, 0, 0, 2],
-                [0, 2, 0, 2],
-                [2, 2, 2, 2]
+                [2, 4, 6, 7],
+                [6, 0, 0, 7],
+                [6, 5, 2, 8],
+                [6, 7, 8, 9]
             ]
 
 score = 0
@@ -18,14 +18,10 @@ def get_position(game_field):
 
 
 def move_left_or_rigth(left, right):
+    global score
     for row in enumerate(game_field): 
         if left:
             # print('left')
-            for column in enumerate(row[1]):
-                    if column[0]:
-                        if row[1][column[0] - 1] == column[1]:
-                            game_field[row[0]][column[0] - 1] += column[1]
-                            game_field[row[0]][column[0]] = 0
             for item_index in range(len(row[1])):
                 moved_to = 0
                 for f in range(item_index):
@@ -33,14 +29,16 @@ def move_left_or_rigth(left, right):
                         if row[1][item_index - moved_to] != 0 and row[1][item_index - moved_to - 1] == 0:
                             game_field[row[0]][item_index - moved_to - 1], game_field[row[0]][item_index - moved_to] = game_field[row[0]][item_index - moved_to], game_field[row[0]][item_index - moved_to - 1]
                             moved_to += 1
+            for column in enumerate(row[1]):
+                    if column[0]:
+                        if row[1][column[0] - 1] == column[1]:
+                            game_field[row[0]][column[0] - 1] += column[1]
+                            score += game_field[row[0]][column[0] - 1]
+                            game_field[row[0]][column[0]] = 0
+            
                 
         else:
             # print('right')
-            for column in enumerate(row[1]):
-                    if column[0] != len(row[1]) - 1:
-                        if row[1][column[0] + 1] == column[1]:
-                            game_field[row[0]][column[0] + 1] += column[1]
-                            game_field[row[0]][column[0]] = 0
             for item_index in range(len(row[1])):
                 moved_to = 0
                 for f in range(len(row[1]) - 1 - item_index):
@@ -48,12 +46,36 @@ def move_left_or_rigth(left, right):
                         if row[1][item_index + moved_to] != 0 and row[1][item_index + moved_to + 1] == 0:
                             game_field[row[0]][item_index + moved_to + 1], game_field[row[0]][item_index + moved_to] = game_field[row[0]][item_index + moved_to], game_field[row[0]][item_index + moved_to + 1]
                             moved_to += 1
+            for column in enumerate(row[1]):
+                    if column[0] != len(row[1]) - 1:
+                        if row[1][column[0] + 1] == column[1]:
+                            game_field[row[0]][column[0] + 1] += column[1]
+                        
+                            score += game_field[row[0]][column[0] + 1]
+                            game_field[row[0]][column[0]] = 0
+            
                 
                             
 
 def move_up_or_down(up, down):
-    pass
-
+    def move_items():
+        for row in enumerate(game_field):
+            if row[0] != len(game_field) - 1:
+                for item in enumerate(row[1]):
+                    if game_field[row[0]][item[0]] == game_field[row[0] + 1][item[0]]:
+                        game_field[row[0] + 1][item[0]] += game_field[row[0]][item[0]]
+                        global score
+                        score += game_field[row[0] + 1][item[0]]
+                        game_field[row[0]][item[0]] = 0
+                    if game_field[row[0]][item[0]] != 0 and game_field[row[0] + 1][item[0]] == 0:
+                        game_field[row[0] + 1][item[0]] = game_field[row[0]][item[0]]
+                        game_field[row[0]][item[0]] = 0
+    if down:
+        move_items()
+    else:
+        game_field.reverse()
+        move_items()
+        game_field.reverse()
 
 def check_zeros(game_field):
     game_field
@@ -63,6 +85,7 @@ def check_zeros(game_field):
                 return True
     return False
 
+
 def locate_position():
     position = get_position(game_field)
     if game_field[position[0]][position[1]] == 0:
@@ -70,44 +93,58 @@ def locate_position():
     else:
         return locate_position()
 
-        
-        
-    # if 0 in position:
-    #     random_and_locate_number()
-    # return position
-# position = get_position(game_field)
-# game_field[position[0]][position[1]] = np.random.choice([2,4],1,p=[0.9,0.1])
 
-
-# np.random.choice([2,4],1,p=[0.9,0.1])
+def check_move(move):
+    if move in ['right', '6', 'left', '4']:
+        for row in game_field:
+            for item in enumerate(row):
+                if item[1] == 0:
+                    return True
+                if item[0] + 1 < len(row):
+                    if row[item[0]] == row[item[0] + 1]:
+                        return True
+        else:
+            return False
+    elif move in ['down' ,'5', 'up', '8']:
+        for row in game_field:
+            for item in enumerate(row):
+                if item[1] == 0:
+                    return True
+                if row[0] + 1 < len(game_field):
+                    if game_field[row[0]] == game_field[row[0] + 1]:
+                        return True
+        else:
+            return False
+    else:
+        return False
 
 def main():
+    
     while True:
+        if check_zeros(game_field):
+            position = locate_position()
+            game_field[position[0]][position[1]] = np.random.choice([2,4],1,p=[0.9,0.1])[0]
+        # else:
+        #     print('GAME OVER')
         for i in game_field:
             print(i)
-        move = input('Select move(down - 5, up - 8, right - 6, left - 4 (numpad)):').strip()
-        if move in ['down' ,'5', 'up', '8', 'right', '6', 'left', '4']:
+        print(f'Score: {score}')
+        move = input('Select move(down - 5, up - 8, right - 6, left - 4 (numpad), end):').strip()
+
+        if check_move(move):
             if move in ['down' ,'5']:
-                print('down')
                 move_up_or_down(False, True)
             elif move in ['up', '8']:
-                print('up')
                 move_up_or_down(True, False)
             elif move in ['right', '6']:
                 move_left_or_rigth(left=False, right=True)
             elif move in ['left', '4']:
                 move_left_or_rigth(left=True, right=False)
-            if check_zeros(game_field):
-                position = locate_position()
-                game_field[position[0]][position[1]] = np.random.choice([2,4],1,p=[0.9,0.1])[0]
-            else:
-                print('GAME OVER')
-                break
+            
+        elif move == 'end':
+            break
         else:
             print('Wrong move\n')
-            # for i in game_field:
-            #     print(i)
-            break
 
 
 if __name__ == '__main__':
